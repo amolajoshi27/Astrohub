@@ -1,0 +1,6 @@
+# Local editor/app settings
+.claude/
+__pycache__/
+*.pyc
+Thumbs.db
+desktop.ini
