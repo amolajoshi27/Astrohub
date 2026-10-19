@@ -1,5 +1,9 @@
 # AstroHub
 
+*All things astronomical.*
+
+**Live site:** https://amolajoshi27.github.io/Astrohub/
+
 A personal astronomy website: tonight's sky and observing forecast, ISS live tracking, Webb/Hubble/APOD images, live Sun, space weather, news, a 12-month events calendar, Messier checklist, observing log, observer calculators and beginner guides.
 
 It's a plain static site (HTML, CSS, JavaScript). It needs no build step, server code or accounts.
@@ -23,12 +27,17 @@ Then open http://localhost:8080 in your browser. Press Ctrl+C in the terminal to
 
 Your location, settings, Messier ticks, local events and observing log are stored in this browser only. Use **Log → Export JSON** to back up your log.
 
-## Publish to GitHub Pages (phase 2)
+## Publishing
 
-1. Create a new repository on GitHub, for example `astrohub`.
-2. Push this folder to it.
-3. On GitHub, go to **Settings → Pages**, choose **Deploy from a branch**, then pick `main` and `/ (root)`.
-4. Your site will be at `https://<your-username>.github.io/astrohub/`.
+The site is published with GitHub Pages from the `main` branch of https://github.com/amolajoshi27/Astrohub (**Settings → Pages → Deploy from a branch → `main` / root**). To update the live site, commit and push:
+
+```
+git add -A
+git commit -m "Describe your change"
+git push
+```
+
+GitHub rebuilds the site within a minute or two.
 
 Browser data does not move with the site, because each web address keeps its own storage. Export your log from the local copy and import it on the published one.
 
