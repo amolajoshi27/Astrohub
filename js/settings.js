@@ -38,7 +38,7 @@ export function openSettings(focusLocation = false) {
     </div>
     <div class="section">
       <h3>NASA API key <span class="xsmall muted">(optional)</span></h3>
-      <p class="small muted">The shared DEMO_KEY is limited to ~30 requests/hour. Get a free personal key at <a href="https://api.nasa.gov/" target="_blank" rel="noopener">api.nasa.gov</a>.</p>
+      <p class="small muted">Only used as a backup source for Picture of the Day. The shared DEMO_KEY is limited to ~30 requests/hour; a free personal key from <a href="https://api.nasa.gov/" target="_blank" rel="noopener">api.nasa.gov</a> avoids that.</p>
       <input type="text" id="nasaKey" value="${esc(s.nasaKey)}" placeholder="DEMO_KEY" autocomplete="off">
     </div>
     <div class="section">

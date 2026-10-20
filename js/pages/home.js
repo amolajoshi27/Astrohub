@@ -71,12 +71,18 @@ export async function render(root, { loc, settings }) {
   })();
 
   // APOD
-  getAPOD(settings.nasaKey).then(a => {
-    const img = a.media_type === 'video' ? a.thumbnail_url : a.url;
+  getAPOD(settings.nasaKey).then(list => {
+    const a = list[list.length - 1];
+    const img = a.thumbnail_url || (a.media_type === 'image' ? a.url : '');
     root.querySelector('#hApodBody').innerHTML = `<a href="#/feeds" style="color:inherit">
-      ${img ? `<img src="${esc(img)}" alt="${esc(a.title)}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;margin-bottom:10px">` : ''}
-      <b>${esc(a.title)}</b></a><div class="xsmall muted">${esc(a.date)}${a.copyright ? ' · © ' + esc(a.copyright.trim()) : ''}</div>`;
-  }).catch(e => { root.querySelector('#hApodBody').innerHTML = `<p class="error">APOD unavailable (${esc(e.message)}). A free NASA API key in Settings avoids rate limits.</p>`; });
+      ${img ? `<img src="${esc(img)}" alt="${esc(a.title)}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;margin-bottom:10px">`
+        : '<div style="aspect-ratio:4/3;display:grid;place-items:center;border-radius:10px;margin-bottom:10px;background:var(--surface-2);color:var(--muted)">▶ Today\'s APOD is a video</div>'}
+      <b>${esc(a.title)}</b></a><div class="xsmall muted">${esc(a.date)}${a.credit ? ' · ' + esc(a.credit.trim().slice(0, 80)) : ''}</div>`;
+  }).catch(e => {
+    root.querySelector('#hApodBody').innerHTML = `<p class="error">Picture of the Day unavailable (${esc(e.message)}).</p>
+      <p class="small muted">${/429/.test(e.message) ? 'The shared NASA key has hit its hourly limit — add your own free key in Settings.' : "NASA's server is having trouble — try again later."}
+      <a href="https://science.nasa.gov/apod/" target="_blank" rel="noopener">Open APOD ↗</a></p>`;
+  });
 
   // News
   getNews({ limit: 6 }).then(j => {

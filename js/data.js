@@ -47,11 +47,50 @@ export async function getKp() {
   })).filter(r => !isNaN(r.kp));
 }
 
-// NASA Astronomy Picture of the Day.
-export function getAPOD(apiKey, days = 0) {
-  let url = `https://api.nasa.gov/planetary/apod?api_key=${encodeURIComponent(apiKey || 'DEMO_KEY')}&thumbs=true`;
-  if (days) url += `&start_date=${new Date(Date.now() - days * 864e5).toISOString().slice(0, 10)}`;
-  return fetchJSON(url, { ttl: 3 * H, key: 'apod-' + days, timeout: 40000 });
+// NASA Astronomy Picture of the Day — about the last 8 days, oldest first. Each item:
+// { date, title, explanation, credit, media_type: 'image'|'video'|'mp4', url, hdurl, thumbnail_url, link }
+//
+// APOD moved from apod.nasa.gov to science.nasa.gov/apod in 2026, and api.nasa.gov/planetary/apod
+// now returns a placeholder ("NASA Science") for every day. So the primary source is the new site's
+// WordPress API (APOD entries are "image-article" posts); the old API is only a fallback.
+export async function getAPOD(apiKey) {
+  try {
+    const posts = await fetchJSON('https://science.nasa.gov/wp-json/wp/v2/image-article?search=apod&per_page=10&_fields=date,slug,link,title,content',
+      { ttl: 3 * H, key: 'apod-science', timeout: 30000 });
+    const list = posts.filter(p => p.slug.startsWith('apod-')).map(parseApodPost).filter(a => a.url);
+    if (list.length) return list.sort((a, b) => a.date.localeCompare(b.date));
+  } catch { /* fall through to the old API */ }
+
+  const start = new Date(Date.now() - 8 * 864e5).toISOString().slice(0, 10);
+  const url = `https://api.nasa.gov/planetary/apod?api_key=${encodeURIComponent(apiKey || 'DEMO_KEY')}&thumbs=true&start_date=${start}`;
+  const raw = await fetchJSON(url, { ttl: 3 * H, key: 'apod-range', timeout: 40000 });
+  const ok = (Array.isArray(raw) ? raw : [raw])
+    .filter(a => a && (a.url || a.thumbnail_url) && !/\/themes\/nasa-child\//.test(a.url || ''))
+    .map(a => ({ ...a, credit: a.copyright, link: `https://apod.nasa.gov/apod/ap${a.date.slice(2).replace(/-/g, '')}.html` }));
+  if (!ok.length) throw new Error("NASA's APOD service isn't returning pictures right now");
+  return ok.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function parseApodPost(p) {
+  const doc = new DOMParser().parseFromString(p.content.rendered, 'text/html');
+  doc.querySelectorAll('nav, button, script, style').forEach(e => e.remove());
+  const paras = [...doc.querySelectorAll('p')].map(x => x.textContent.replace(/\s+/g, ' ').trim());
+  const explanation = (paras.find(t => /^Explanation\s*:/i.test(t)) || '').replace(/^(Explanation\s*:\s*)+/i, '');
+  const credit = (paras.find(t => /credit/i.test(t) && t.length < 400) || '').replace(/^.*?credit[^:]*:\s*/i, '');
+  const title = new DOMParser().parseFromString(p.title.rendered, 'text/html').body.textContent
+    .replace(/^APOD:\s*\d{4}\s+\w+\s+\d{1,2}\s*[–-]\s*/, '');
+  const base = { date: p.date.slice(0, 10), title, explanation, credit, link: p.link };
+  const yt = doc.querySelector('iframe[src*="youtube"], iframe[src*="vimeo"]');
+  if (yt) {
+    const id = (yt.src.match(/embed\/([\w-]{11})/) || [])[1];
+    return { ...base, media_type: 'video', url: yt.src, thumbnail_url: id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : '' };
+  }
+  const img = doc.querySelector('img[src*="assets.science.nasa.gov"]') || doc.querySelector('img');
+  const mp4 = doc.querySelector('video source[src], video[src]');
+  if (mp4 && !img) return { ...base, media_type: 'mp4', url: mp4.getAttribute('src'), thumbnail_url: '' };
+  if (!img) return base;
+  const full = img.getAttribute('src').split('?')[0];
+  return { ...base, media_type: 'image', url: full + '?w=1600', hdurl: full, thumbnail_url: full + '?w=800' };
 }
 
 // Spaceflight News API (articles, blogs, reports).

@@ -35,23 +35,25 @@ export async function render(root, { loc, settings }) {
 
   async function showApod() {
     try {
-      const list = (await getAPOD(settings.nasaKey, 8)).filter(a => a.url || a.thumbnail_url).reverse();
+      const list = (await getAPOD(settings.nasaKey)).reverse();
       const a = list[0];
       const media = a.media_type === 'video'
         ? `<div class="frame"><iframe src="${esc(a.url)}" title="${esc(a.title)}" allowfullscreen></iframe></div>`
-        : `<img src="${esc(a.url)}" alt="${esc(a.title)}" style="cursor:zoom-in" data-hd="${esc(a.hdurl || a.url)}" id="apodImg">`;
+        : a.media_type === 'mp4'
+          ? `<video src="${esc(a.url)}" controls muted loop playsinline style="width:100%;border-radius:var(--radius-sm)"></video>`
+          : `<img src="${esc(a.url)}" alt="${esc(a.title)}" style="cursor:zoom-in" data-hd="${esc(a.hdurl || a.url)}" id="apodImg">`;
       body.innerHTML = `<div class="card"><div class="apod-hero">${media}
         <div><p class="eyebrow">${esc(a.date)}</p><h2 style="font-size:1.5rem">${esc(a.title)}</h2>
-        ${a.copyright ? `<p class="small muted">© ${esc(a.copyright.trim())}</p>` : ''}
+        ${a.credit ? `<p class="small muted">Credit: ${esc(a.credit.trim())}</p>` : ''}
         <p class="dim" style="font-size:.93rem">${esc(a.explanation)}</p>
-        <a class="btn sm" href="https://apod.nasa.gov/apod/ap${a.date.slice(2).replace(/-/g, '')}.html" target="_blank" rel="noopener">View on APOD ↗</a></div></div></div>
+        <a class="btn sm" href="${esc(a.link)}" target="_blank" rel="noopener">View on APOD ↗</a></div></div></div>
         <h2 style="margin-top:26px">Previous days</h2>
-        <div class="gallery">${list.slice(1).map(p => `<a class="media-card" href="https://apod.nasa.gov/apod/ap${p.date.slice(2).replace(/-/g, '')}.html" target="_blank" rel="noopener">
-          <div class="thumb"><img src="${esc(p.media_type === 'video' ? p.thumbnail_url : p.url)}" alt="" loading="lazy" onerror="this.remove()"></div>
+        <div class="gallery">${list.slice(1).map(p => `<a class="media-card" href="${esc(p.link)}" target="_blank" rel="noopener">
+          <div class="thumb">${p.thumbnail_url || p.media_type === 'image' ? `<img src="${esc(p.thumbnail_url || p.url)}" alt="" loading="lazy" onerror="this.remove()">` : '<div style="display:grid;place-items:center;height:100%;color:var(--muted)">▶ Video</div>'}</div>
           <div class="body"><div class="meta">${esc(p.date)}</div><h3>${esc(p.title)}</h3></div></a>`).join('')}</div>`;
       body.querySelector('#apodImg')?.addEventListener('click', e => lightbox(e.target.dataset.hd));
     } catch (e) {
-      body.innerHTML = `<div class="card"><p class="error">APOD unavailable: ${esc(e.message)}</p><p class="small muted">The shared NASA DEMO_KEY is rate-limited. Add your own free key in Settings.</p></div>`;
+      body.innerHTML = `<div class="card"><p class="error">APOD unavailable: ${esc(e.message)}</p><p class="small muted">${/429/.test(e.message) ? 'The shared NASA key has hit its hourly limit — add your own free key in Settings.' : "NASA's server is having trouble — try again later."} <a href="https://science.nasa.gov/apod/" target="_blank" rel="noopener">Open APOD ↗</a></p></div>`;
     }
   }
 

@@ -22,7 +22,7 @@ Then open http://localhost:8080 in your browser. Press Ctrl+C in the terminal to
 ## First run
 
 1. Choose your city in the location dialog that opens on the first visit, or use your device location.
-2. Optional: under **Settings**, add a free NASA API key from https://api.nasa.gov. The shared `DEMO_KEY` only allows about 30 requests an hour.
+2. Optional: under **Settings**, add a free NASA API key from https://api.nasa.gov. It's only used as a backup source for Picture of the Day, where the shared `DEMO_KEY` allows about 30 requests an hour.
 3. Press **R** at any time, or click the moon button, to switch red night-vision mode on or off.
 
 Your location, settings, Messier ticks, local events and observing log are stored in this browser only. Use **Log → Export JSON** to back up your log.
@@ -51,7 +51,7 @@ Browser data does not move with the site, because each web address keeps its own
 | Seeing and transparency | Estimated from Open-Meteo jet-stream wind, humidity and visibility |
 | Kp index and aurora | NOAA SWPC |
 | News | Spaceflight News API, plus RSS via rss2json |
-| Picture of the Day | NASA APOD API |
+| Picture of the Day | science.nasa.gov/apod (APOD's new home), with the NASA APOD API as a backup |
 | Webb and Hubble images | ESA/Webb and ESA/Hubble image feeds |
 | ISS live video | NASA's official 24/7 YouTube streams (change the ID in Settings if NASA restarts them) |
 | Live Sun | NASA SDO and SOHO |
