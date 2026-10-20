@@ -13,7 +13,7 @@ It's a plain static site (HTML, CSS, JavaScript). It needs no build step, server
 Browsers block JavaScript modules opened straight from a file, so serve the folder with Python. `serve.py` turns off browser caching, so edits show up as soon as you reload:
 
 ```
-cd D:\Amol\Amol\AI\Claude
+cd D:\Amol\Amol\AI\Claude\Astrohub
 C:\Users\Amol\AppData\Local\Programs\Python\Python312\python.exe serve.py
 ```
 
