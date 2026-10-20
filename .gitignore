@@ -1,6 +1,9 @@
 # Local editor/app settings
 .claude/
 __pycache__/
+# MCP server: local virtual environment and personal home location
+mcp/.venv/
+mcp/config.json
 *.pyc
 Thumbs.db
 desktop.ini

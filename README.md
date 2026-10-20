@@ -41,6 +41,46 @@ GitHub rebuilds the site within a minute or two.
 
 Browser data does not move with the site, because each web address keeps its own storage. Export your log from the local copy and import it on the published one.
 
+## Ask AstroHub in the Claude desktop app (MCP)
+
+The `mcp/` folder holds a small local **MCP server**. It lets the Claude desktop app use AstroHub's data, so you can ask questions like *"Should I observe tonight?"*, *"Plan two hours of galaxies I haven't logged"* or *"When can I see the ISS this week?"* in a normal Claude chat. It runs only on this computer, needs no API key, and counts against your Claude plan.
+
+**Tools it provides**
+
+| Tool | What it does |
+|---|---|
+| `get_tonight` | Darkness times, Moon, cloud, humidity, wind, estimated seeing, and go/no-go scores |
+| `get_planets` | Moon and planets: position now, rise/set, best time, magnitude |
+| `get_best_targets` | Best Messier objects tonight; can skip ones you've already logged |
+| `where_is` | Where any planet or Messier object is now and when it's best |
+| `get_iss_passes` | ISS position now and visible passes for up to 3 weeks |
+| `get_sky_events` | Eclipses, meteor showers, oppositions, conjunctions, moon phases |
+| `get_space_weather` | Kp index and aurora chances |
+| `get_launches`, `get_news` | Upcoming launches and the latest space news |
+| `calculate_eyepiece` | Magnification, field of view and exit pupil |
+| `get_observing_log` | Your log and Messier progress, from the latest **Log → Export JSON** file in Downloads |
+
+Every location tool accepts an optional place name. Without one, it uses the home location in `mcp/config.json` (copy `config.example.json` to set it up). Your log lives inside the browser, so export it again whenever you want Claude to see new entries.
+
+**Setup** (already done on this computer):
+
+```
+cd D:\Amol\Amol\AI\Claude\Astrohub
+C:\Users\Amol\AppData\Local\Programs\Python\Python312\python.exe -m venv mcp\.venv
+mcp\.venv\Scripts\python.exe -m pip install -r mcp\requirements.txt
+```
+
+Then add this under `"mcpServers"` in Claude's settings (**Settings → Developer → Edit Config**) and fully quit and reopen the Claude app:
+
+```json
+"AstroHub": {
+  "command": "D:\\Amol\\Amol\\AI\\Claude\\Astrohub\\mcp\\.venv\\Scripts\\python.exe",
+  "args": ["D:\\Amol\\Amol\\AI\\Claude\\Astrohub\\mcp\\astrohub_mcp.py"]
+}
+```
+
+If you move the project folder, update both paths.
+
 ## Data sources
 
 | Feature | Source |
@@ -71,4 +111,5 @@ js/iss-calc.js      ISS orbit and passes
 js/charts.js        SVG charts
 js/pages/*.js       one file per page
 data/*.js           Messier catalogue and meteor showers
+mcp/astrohub_mcp.py MCP server for the Claude desktop app (reads data/*.js too)
 ```

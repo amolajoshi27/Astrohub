@@ -1,0 +1,4 @@
+mcp>=2.3,<3
+astronomy-engine==2.1.19
+sgp4>=2.27
+tzdata

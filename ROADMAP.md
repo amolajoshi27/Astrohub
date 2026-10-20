@@ -28,7 +28,20 @@ Recommended sequence: **offline app → observing planner → alerts**, which co
 
 **Skip for now:** accounts for other people, comments or forums. They turn a personal tool into a service that needs moderating and securing.
 
-## AI agent ("Ask AstroHub") — parked
+## AI agent ("Ask AstroHub")
+
+**Status (October 2026):** a local-only version is built as an **MCP server for the Claude desktop app** (`mcp/`, see the README). It uses the existing Claude plan, so it needs no API key and no backend, and nothing is published. The in-site chat panel below is still parked; it would need the paid API and a relay.
+
+Free and low-cost alternatives that were considered:
+
+| Option | Cost | Notes |
+|---|---|---|
+| **MCP + Claude desktop app** (chosen) | Covered by a Claude plan | Chat happens in the Claude app, not inside AstroHub |
+| Claude API key, local relay in `serve.py` | Haiku 5.5 under $1 a month; Opus 5.5 ~$15–30 | Chat inside AstroHub; key stays on this PC |
+| Hugging Face Inference Providers | $0.10 a month free (only a few chats) | Open models; less reliable tool calling |
+| Ollama (local open models) | Free | Needs a strong PC; weaker planning |
+
+The rest of this section describes the in-site chat panel.
 
 ### Use cases, most useful first
 1. **"Should I go out tonight?"**: a plain-language answer with reasons, from weather, darkness, Moon and seeing.
